@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280 d18.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WikiLive.Api", "WikiLive.Api.csproj", "{31007142-1640-D35B-6A7A-47B447889E62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{31007142-1640-D35B-6A7A-47B447889E62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31007142-1640-D35B-6A7A-47B447889E62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31007142-1640-D35B-6A7A-47B447889E62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31007142-1640-D35B-6A7A-47B447889E62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB03D016-2F93-4DCF-8E4E-E6F4A0979453}
+	EndGlobalSection
+EndGlobal
