@@ -1,65 +1,76 @@
-import axios from 'axios';
+import axios, { type AxiosError } from 'axios'
+import type { Comment, Json, Page, PageActivityItem, VersionConflictResponse } from '@/lib/types'
 
-// Настройка базового пути для запросов
 const api = axios.create({
-  baseURL: '/api'
-});
+  baseURL: '/api',
+})
 
-// Функции для работы со страницами
+export { api }
+
 export const pagesApi = {
-  // Получить все страницы для сайдбара
-  getAll: async () => {
-    const response = await api.get('/Pages');
-    return response.data;
+  list: async () => {
+    const res = await api.get<Page[]>('/pages')
+    return res.data
   },
-  
-  // Получить одну страницу (вместе с контентом и комментариями)
-  getById: async (id: string) => {
-    const response = await api.get(`/Pages/${id}`);
-    return response.data;
+  get: async (id: string) => {
+    const res = await api.get<Page>(`/pages/${id}`)
+    return res.data
   },
-  
-  // Создать новую страницу
-  create: async (title: string) => {
-    const response = await api.post('/Pages', { title, content: {} });
-    return response.data;
+  activity: async (id: string) => {
+    const res = await api.get<PageActivityItem[]>(`/pages/${id}/activity`)
+    return res.data
   },
-  
-  // Обновить страницу (автосохранение)
-  update: async (id: string, data: any) => {
-    return await api.put(`/Pages/${id}`, data);
+  create: async (title: string, content: Json = { type: 'doc', content: [{ type: 'paragraph' }] }) => {
+    const res = await api.post<Page>('/pages', { title, content })
+    return res.data
   },
-  
-  // Восстановить версию
+  update: async (page: Page, expectedVersion: number, versionSummary?: string | null) => {
+    return api.put(`/pages/${page.id}?expectedVersion=${expectedVersion}`, {
+      ...page,
+      versionSummary: versionSummary ?? null,
+    })
+  },
   restoreVersion: async (pageId: string, versionId: string) => {
-    const response = await api.post(`/Pages/${pageId}/restore/${versionId}`);
-    return response.data;
-  }
-};
+    const res = await api.post<Page>(`/pages/${pageId}/restore/${versionId}`)
+    return res.data
+  },
+}
 
-// Функции для работы с комментариями
+export function isVersionConflict(err: unknown): err is AxiosError<VersionConflictResponse> {
+  return axios.isAxiosError(err) && err.response?.status === 409
+}
+
 export const commentsApi = {
-  // Добавить новый комментарий
-  create: async (comment: { pageId: string, text: string, selectedText?: string, parentId?: string }) => {
-    const response = await api.post('/Comments', comment);
-    return response.data;
+  create: async (comment: {
+    pageId: string
+    text: string
+    selectedText?: string | null
+    anchor?: Json | null
+    parentId?: string | null
+  }) => {
+    const res = await api.post<Comment>('/comments', {
+      pageId: comment.pageId,
+      text: comment.text,
+      selectedText: comment.selectedText ?? null,
+      anchor: comment.anchor ?? null,
+      parentId: comment.parentId ?? null,
+      resolved: false,
+      likes: 0,
+    })
+    return res.data
   },
-  
-  // Поставить лайк
+  update: async (id: string, patch: { text?: string; resolved?: boolean }) => {
+    const res = await api.put<Comment>(`/comments/${id}`, patch)
+    return res.data
+  },
   like: async (id: string) => {
-    const response = await api.post(`/Comments/${id}/like`);
-    return response.data;
+    const res = await api.post<{ likes: number }>(`/comments/${id}/like`)
+    return res.data
   },
-  
-  // Пометить как решенное
-  resolve: async (id: string) => {
-    return await api.put(`/Comments/${id}/resolve`);
+  resolve: async (id: string, resolved: boolean) => {
+    await api.put(`/comments/${id}/resolve`, { resolved })
   },
-  
-  // Удалить
   delete: async (id: string) => {
-    return await api.delete(`/Comments/${id}`);
-  }
-};
-
-export default api;
+    await api.delete(`/comments/${id}`)
+  },
+}
